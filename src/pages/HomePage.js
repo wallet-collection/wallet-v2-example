@@ -14,6 +14,7 @@ const HomePage = () => {
 
     return (
         <div>
+            <AppHeader title="资产总览" showBack={false} />
             <Card title="资产总览" extra={<UnorderedListOutlined onClick={() => navigate('/orders')} />}>
                 <p>总资产: $17,500.00</p>
                 <List
