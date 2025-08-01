@@ -22,7 +22,7 @@ function App() {
           {/*<Header>*/}
           {/*  <div className="logo">OKX Style Wallet</div>*/}
           {/*</Header>*/}
-          <Content style={{ padding: '0 16px' }}>
+          <Content>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/deposit/coin" element={<DepositCoinPage />} />
