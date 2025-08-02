@@ -145,6 +145,7 @@ const WithdrawFormPage = () => {
                                     { required: true, message: '请输入数量!' },
                                     { max: Number(coinInfo.balance), message: '超过可用余额!' },
                                     { max: Number(max_withdraw), message: '超过最大提现!' },
+                                    { min: Number(min_withdraw), message: '未满足最低提现!' },
                                 ]}
                             >
                                 <Input type="number" placeholder="0.1" addonAfter={coin_symbol} />
@@ -152,6 +153,8 @@ const WithdrawFormPage = () => {
 
                             <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>
                                 <Text type="secondary">可用余额: {coinInfo.balance} {coin_symbol}</Text>
+                                <Text type="secondary">最低提现: {min_withdraw} {coin_symbol}</Text>
+                                <Text type="secondary">最低手续费: {min_withdraw_fee} {coin_symbol}</Text>
                                 <Text type="secondary">网络手续费率: {withdraw_rate*100}%</Text>
                                 <Text strong>实际到账: 请自行计算</Text>
                             </Space>

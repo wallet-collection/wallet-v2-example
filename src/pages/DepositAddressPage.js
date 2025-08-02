@@ -22,8 +22,8 @@ const DepositAddressPage = () => {
                 setLoading(true);
                 // 并行获取用户信息和币种列表
                 const res = await getRechargeAddress({coin_symbol: coin_symbol, network_name: network_name}) // 新增接口调
-                if (res.code === 0 && res.data.address) {
-                    setAddress(res.data.address);
+                if (res.code === 0 && res.data) {
+                    setAddress(res.data);
                 }
                 console.log(res)
             } catch (error) {
