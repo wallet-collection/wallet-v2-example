@@ -36,3 +36,14 @@
     transform: rotate(360deg);
   }
 }
+
+/* 用户信息悬停效果 */
+.ant-dropdown-link:hover {
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+/* 下拉菜单样式 */
+.ant-dropdown-menu {
+  min-width: 120px;
+}

@@ -1,79 +1,93 @@
-import React from 'react';
-import { Card, List, Tag, Typography, Space } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {Card, List, Typography, Tag, Space, Spin} from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AppHeader from '../components/AppHeader';
+import {getCoinNetworkList} from "../api/auth";
 
 const { Text } = Typography;
 
-// 网络数据（图片放在 public/icons/）
-const networkData = [
-    {
-        id: 'BTC',
-        name: 'Bitcoin Network',
-        icon: '/icons/btc_network.png',
-        fee: '0.0005 BTC',
-        speed: '快',
-        time: '约10分钟'
-    },
-    {
-        id: 'ERC20',
-        name: 'Ethereum (ERC-20)',
-        icon: '/icons/erc20.png',
-        fee: '0.001 ETH',
-        speed: '中',
-        time: '约5分钟'
-    },
-    {
-        id: 'TRC20',
-        name: 'Tron (TRC-20)',
-        icon: '/icons/trc20.png',
-        fee: '1 USDT',
-        speed: '快',
-        time: '约2分钟'
-    }
-];
-
 const WithdrawNetworkPage = () => {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const defaultCoin = queryParams.get('symbol') || ''; // 获取币种参数
+
+    const [lists, setlists] = useState([
+        {coin_symbol: '--', network_name: '--', is_withdraw: 0, min_recharge: 0},
+    ]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                // 并行获取用户信息和币种列表
+                const coinData = await getCoinNetworkList({coin_symbol: defaultCoin})
+                setlists(coinData.data.map(item => ({
+                    coin_symbol: item.coin_symbol,      // 假设接口返回symbol字段
+                    network_name: item.network_name,      // 假设接口返回symbol字段
+                    is_withdraw: item.is_withdraw,   //
+                    withdraw_rate: item.withdraw_rate,   //
+                    min_withdraw_fee: item.min_withdraw_fee,   //
+                    min_withdraw: item.min_withdraw,   //
+                    max_withdraw: item.max_withdraw,   //
+                })));
+            } catch (error) {
+                console.error('获取信息失败:');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [navigate]);
+
+    const handleSelectCoin = (data) => {
+        navigate('/withdraw/form', {
+            state: data
+        });
+    };
 
     return (
         <div>
             <AppHeader title="选择提币网络" showBack />
-
-            <List
-                dataSource={networkData}
-                renderItem={(item) => (
-                    <Card
-                        hoverable
-                        style={{
-                            marginBottom: 12,
-                            borderRadius: 8,
-                            border: '1px solid #f0f0f0'
-                        }}
-                        onClick={() => navigate('/withdraw/form')}
-                    >
-                        <List.Item>
-                            <List.Item.Meta
-                                avatar={<img src={item.icon} alt={item.name} style={{ width: 32, height: 32 }} />}
-                                title={
-                                    <Space>
-                                        <Text strong>{item.name}</Text>
-                                        <Tag color={item.speed === '快' ? 'green' : 'blue'}>
-                                            {item.speed}
-                                        </Tag>
-                                    </Space>
-                                }
-                                description={
-                                    <Space direction="vertical" size={2}>
-                                        <Text type="secondary">手续费: {item.fee}</Text>
-                                        <Text type="secondary">到账时间: {item.time}</Text>
-                                    </Space>
-                                }
-                            />
-                        </List.Item>
-                    </Card>
-                )}
-            />
+            <Spin spinning={loading}>
+                <List
+                    dataSource={lists}
+                    renderItem={(item) => (
+                        <Card
+                            hoverable
+                            style={{
+                                marginBottom: 12,
+                                borderRadius: 8,
+                                border: '1px solid #f0f0f0',
+                                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+                            }}
+                            onClick={() => handleSelectCoin(item)}
+                        >
+                            <List.Item>
+                                <List.Item.Meta
+                                    title={
+                                        <Space>
+                                            <Text strong>{item.network_name}</Text>
+                                            <Tag color={item.is_withdraw === 0 ? 'blue' : 'green'}>
+                                                {item.is_withdraw === 0 ? '不能充值' : '自动'}
+                                            </Tag>
+                                        </Space>
+                                    }
+                                    description={
+                                        <Space direction="vertical" size={2}>
+                                            <Text type="secondary">手续费率: {item.withdraw_rate*100}%</Text>
+                                            <Text type="secondary">最低提现: {item.min_withdraw}</Text>
+                                            <Text type="secondary">最大提现: {item.max_withdraw}</Text>
+                                        </Space>
+                                    }
+                                />
+                            </List.Item>
+                        </Card>
+                    )}
+                />
+            </Spin>
         </div>
     );
 };

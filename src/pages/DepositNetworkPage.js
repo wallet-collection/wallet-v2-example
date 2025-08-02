@@ -1,80 +1,83 @@
-import React from 'react';
-import { Card, List, Typography, Tag, Space } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {Card, List, Typography, Tag, Space, Spin} from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AppHeader from '../components/AppHeader';
+import {getCoinNetworkList} from "../api/auth";
 
 const { Text } = Typography;
 
-// 网络数据（假设图片已放在 public/icons/ 目录下）
-const networkData = [
-    {
-        id: 'BTC',
-        name: 'Bitcoin Network',
-        icon: '/icons/btc_network.png', // 本地图片路径
-        fee: '0.0005 BTC',
-        speed: '快',
-        description: '原生比特币网络'
-    },
-    {
-        id: 'ERC20',
-        name: 'Ethereum (ERC-20)',
-        icon: '/icons/erc20.png',
-        fee: '0.001 ETH',
-        speed: '中',
-        description: '以太坊主网'
-    },
-    {
-        id: 'TRC20',
-        name: 'Tron (TRC-20)',
-        icon: '/icons/trc20.png',
-        fee: '1 USDT',
-        speed: '快',
-        description: '波场网络'
-    }
-];
-
 const DepositNetworkPage = () => {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const defaultCoin = queryParams.get('symbol') || ''; // 获取币种参数
+
+    const [lists, setlists] = useState([
+        {coin_symbol: '--', network_name: '--', is_recharge: 0, min_recharge: 0},
+    ]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                // 并行获取用户信息和币种列表
+                const coinData = await getCoinNetworkList({coin_symbol: defaultCoin})
+                setlists(coinData.data.map(item => ({
+                    coin_symbol: item.coin_symbol,      // 假设接口返回symbol字段
+                    network_name: item.network_name,      // 假设接口返回symbol字段
+                    is_recharge: item.is_recharge,   //
+                    min_recharge: item.min_recharge,   //
+                })));
+            } catch (error) {
+                console.error('获取信息失败:');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [navigate]);
+
+    const handleSelectCoin = (data) => {
+        navigate('/deposit/address', {
+            state: data
+        });
+    };
 
     return (
         <div>
             <AppHeader title="选择充值网络" showBack />
-
-            <List
-                dataSource={networkData}
-                renderItem={(item) => (
-                    <Card
-                        hoverable
-                        style={{
-                            marginBottom: 12,
-                            borderRadius: 8,
-                            border: '1px solid #f0f0f0',
-                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
-                        }}
-                        onClick={() => navigate('/deposit/address')}
-                    >
-                        <List.Item>
-                            <List.Item.Meta
-                                avatar={<img src={item.icon} alt={item.name} style={{ width: 32, height: 32 }} />}
-                                title={
-                                    <Space>
-                                        <Text strong>{item.name}</Text>
-                                        <Tag color={item.speed === '快' ? 'green' : 'blue'}>
-                                            {item.speed}
-                                        </Tag>
-                                    </Space>
-                                }
-                                description={
-                                    <Space direction="vertical" size={2}>
-                                        <Text type="secondary">{item.description}</Text>
-                                        <Text type="secondary">手续费: {item.fee}</Text>
-                                    </Space>
-                                }
-                            />
-                        </List.Item>
-                    </Card>
-                )}
-            />
+            <Spin spinning={loading}>
+                <List
+                    dataSource={lists}
+                    renderItem={(item) => (
+                        <Card
+                            hoverable
+                            style={{
+                                marginBottom: 12,
+                                borderRadius: 8,
+                                border: '1px solid #f0f0f0',
+                                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+                            }}
+                            onClick={() => handleSelectCoin(item)}
+                        >
+                            <List.Item>
+                                <List.Item.Meta
+                                    title={
+                                        <Space>
+                                            <Text strong>{item.network_name}</Text>
+                                            <Tag color={item.is_recharge === 0 ? 'blue' : 'green'}>
+                                                {item.is_recharge === 0 ? '不能充值' : '自动'}
+                                            </Tag>
+                                        </Space>
+                                    }
+                                />
+                            </List.Item>
+                        </Card>
+                    )}
+                />
+            </Spin>
         </div>
     );
 };

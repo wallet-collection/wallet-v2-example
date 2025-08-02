@@ -6,10 +6,12 @@ import {
   DepositCoinPage,
   DepositNetworkPage,
   DepositAddressPage,
+  DepositListPage,
   WithdrawCoinPage,
   WithdrawNetworkPage,
   WithdrawFormPage,
-  OrderListPage
+  WithdrawListPage,
+  AuthPage,
 } from './pages';
 import './App.css';
 
@@ -28,10 +30,13 @@ function App() {
               <Route path="/deposit/coin" element={<DepositCoinPage />} />
               <Route path="/deposit/network" element={<DepositNetworkPage />} />
               <Route path="/deposit/address" element={<DepositAddressPage />} />
+              <Route path="/deposit/list" element={<DepositListPage />} />
+
               <Route path="/withdraw/coin" element={<WithdrawCoinPage />} />
               <Route path="/withdraw/network" element={<WithdrawNetworkPage />} />
               <Route path="/withdraw/form" element={<WithdrawFormPage />} />
-              <Route path="/orders" element={<OrderListPage />} />
+              <Route path="/withdraw/list" element={<WithdrawListPage />} />
+              <Route path="/auth" element={<AuthPage />} />
             </Routes>
           </Content>
         </Layout>
