@@ -36,7 +36,7 @@ const WithdrawFormPage = () => {
             }
             messageApi.success(`提币成功`);
             setTimeout(() => {
-                navigate('/orders');
+                navigate('/withdraw/list');
             }, 1000)
         } catch (error) {
             messageApi.error(error.response?.data?.message || '操作失败');
