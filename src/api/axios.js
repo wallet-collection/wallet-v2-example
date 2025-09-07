@@ -3,7 +3,7 @@ import storage from '../utils/storage'; // 引入存储工具
 import Toast from '../utils/toast'
 
 const service = axios.create({
-    baseURL: 'https://38f2d655.r24.cpolar.top',
+    baseURL: 'https://4b3b12a.r24.cpolar.top',
     timeout: 5000
 });
 
